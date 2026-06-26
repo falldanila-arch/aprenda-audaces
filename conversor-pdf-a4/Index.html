@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Conversor de moldes PDF para impressão em folhas A4. Divisão de moldes CAD, Audaces e arquivos de design em modo poster para impressão em múltiplas folhas. Moldes para modelagem, riscos para corte e digitalização profissional.">
+  <meta name="keywords" content="moldes em pdf, moldes a4, molde audaces para pdf, molde para impressão, modelagem pdf, modelagem cad, impressão de mapa, impressão de risco, moldes para impressão, divisor de pdf, conversor poster a4">
+  <meta name="author" content="Modelagem e Diversos">
+  <meta property="og:title" content="Conversor de Moldes PDF para Folhas A4 - Modelagem e Diversos">
+  <meta property="og:description" content="Converta seus moldes PDF em folhas A4 para impressão em modo poster. Perfeito para moldes Audaces, CAD e projetos de moda.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://seudominio.com">
+  <meta name="robots" content="index, follow">
+  
+  <title>Conversor de Moldes PDF para A4 | Impressão Poster - Modelagem e Diversos</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://js.stripe.com/v3/"></script>
+  
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --green: #009C3B;
+      --green-light: #00c94b;
+      --yellow: #FFDF00;
+      --bg: #0a1628;
+      --bg-darker: #050e1a;
+      --bg-card: #0d1f3c;
+      --text: #e8f0fe;
+      --text-muted: #7a90b8;
+    }
+    
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Barlow', sans-serif;
+      line-height: 1.6;
+    }
+    
+    .container { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+    
+    #navbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 18px 0;
+      background: rgba(5, 14, 26, 0.95);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid rgba(255, 223, 0, 0.1);
+    }
+    
+    .nav-logo { font-family: 'Bebas Neue'; font-size: 20px; letter-spacing: 2px; color: #fff; }
+    .nav-logo span { color: var(--yellow); }
+    
+    #header {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding-top: 120px;
+      text-align: center;
+      background: linear-gradient(135deg, rgba(0,156,59,0.08) 0%, rgba(0,39,118,0.15) 100%);
+    }
+    
+    .hero-content h1 { font-family: 'Bebas Neue'; font-size: clamp(2.5rem, 8vw, 4rem); letter-spacing: 2px; margin-bottom: 16px; color: #fff; }
+    .hero-content h1 span { color: var(--yellow); }
+    .hero-content p { font-size: 18px; color: var(--text-muted); margin-bottom: 40px; max-width: 600px; margin-left: auto; margin-right: auto; }
+    
+    #pricing-section { padding: 60px 0; background: rgba(0, 0, 0, 0.3); }
+    .pricing-card { background: var(--bg-card); border: 2px solid rgba(255, 223, 0, 0.3); border-radius: 16px; padding: 32px; text-align: center; margin-bottom: 24px; }
+    .pricing-value { font-family: 'Bebas Neue'; font-size: 3.5rem; color: var(--yellow); margin: 16px 0; }
+    .pricing-desc { color: var(--text-muted); font-size: 14px; margin-bottom: 24px; }
+    
+    #upload-section { padding: 60px 0; }
+    .upload-card { background: var(--bg-card); border: 2px solid rgba(255, 223, 0, 0.3); border-radius: 20px; padding: 48px 32px; max-width: 600px; margin: 0 auto; text-align: center; }
+    .upload-icon { font-size: 4rem; margin-bottom: 20px; }
+    .upload-title { font-family: 'Bebas Neue'; font-size: 2rem; letter-spacing: 1px; color: #fff; margin-bottom: 12px; }
+    .upload-desc { color: var(--text-muted); margin-bottom: 32px; font-size: 15px; }
+    
+    .file-input-label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 24px;
+      background: rgba(0, 156, 59, 0.15);
+      border: 2px dashed rgba(0, 156, 59, 0.4);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 700;
+      color: var(--green-light);
+    }
+    
+    .file-input-label:hover { background: rgba(0, 156, 59, 0.25); border-color: rgba(0, 156, 59, 0.6); }
+    #pdfInput { display: none; }
+    
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 14px 32px;
+      font-family: 'Barlow', sans-serif;
+      font-weight: 700;
+      font-size: 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      border: none;
+      transition: all 0.25s ease;
+    }
+    
+    .btn-primary {
+      background: var(--green);
+      color: #fff;
+      border: 2px solid var(--green-light);
+      box-shadow: 0 0 20px rgba(0, 156, 59, 0.3);
+      width: 100%;
+      margin-top: 20px;
+    }
+    
+    .btn-primary:hover:not(:disabled) { box-shadow: 0 0 30px rgba(0, 156, 59, 0.45); transform: translateY(-2px); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    
+    .btn-payment {
+      background: var(--yellow);
+      color: var(--bg-darker);
+      border: 2px solid var(--yellow);
+      font-weight: 800;
+      width: 100%;
+      margin-top: 20px;
+    }
+    
+    .btn-payment:hover:not(:disabled) { background: #e6c800; transform: translateY(-2px); }
+    
+    .voucher-input {
+      width: 100%;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      color: #fff;
+      font-family: 'Barlow';
+      margin-bottom: 12px;
+    }
+    
+    .voucher-input:focus { outline: none; border-color: var(--yellow); box-shadow: 0 0 10px rgba(255, 223, 0, 0.2); }
+    
+    .progress-wrapper { margin-top: 24px; display: none; }
+    .progress-bar { width: 100%; height: 8px; background: rgba(255, 255, 255, 0.1); border-radius: 4px; overflow: hidden; margin-bottom: 8px; }
+    .progress-fill { height: 100%; background: var(--green); width: 0%; transition: width 0.3s ease; }
+    .progress-text { font-size: 13px; color: var(--text-muted); text-align: center; }
+    
+    #preview-section { padding: 60px 0; display: none; }
+    .preview-title { font-family: 'Bebas Neue'; font-size: 2rem; letter-spacing: 1px; margin-bottom: 32px; text-align: center; color: #fff; }
+    .preview-title span { color: var(--yellow); }
+    
+    .preview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; margin-bottom: 32px; }
+    .preview-page { background: white; border: 2px solid rgba(0, 156, 59, 0.3); border-radius: 8px; overflow: auto; position: relative; max-height: 280px; padding: 8px; }
+    .preview-page canvas { width: 100%; height: auto; background: white; }
+    .preview-overlay { position: absolute; top: 8px; right: 8px; background: var(--green); color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; }
+    
+    .assembly-guide { background: rgba(0, 156, 59, 0.1); border: 1px solid rgba(0, 156, 59, 0.3); border-radius: 12px; padding: 24px; margin: 32px 0; }
+    .assembly-guide h3 { color: var(--green-light); margin-bottom: 16px; font-size: 1.2rem; }
+    .assembly-guide ol { margin-left: 24px; color: var(--text-muted); }
+    .assembly-guide li { margin-bottom: 10px; }
+    .assembly-diagram { background: rgba(255, 255, 255, 0.05); border-radius: 8px; padding: 16px; margin-top: 16px; text-align: center; font-family: monospace; font-size: 12px; overflow-x: auto; }
+    
+    .message { padding: 16px 20px; margin-bottom: 24px; border-radius: 8px; font-weight: 600; animation: slideIn 0.3s ease; }
+    .success-message { display: none; background: rgba(0, 156, 59, 0.2); border: 1px solid rgba(0, 156, 59, 0.4); color: var(--green-light); }
+    .error-message { display: none; background: rgba(231, 76, 60, 0.2); border: 1px solid rgba(231, 76, 60, 0.4); color: #ff6b5b; }
+    .message.show { display: block; }
+    
+    @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    
+    .modal { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.8); z-index: 200; align-items: center; justify-content: center; }
+    .modal.show { display: flex; }
+    .modal-content { background: var(--bg-card); border: 1px solid rgba(255, 223, 0, 0.3); border-radius: 16px; padding: 32px; max-width: 500px; width: 90%; }
+    .modal-close { position: absolute; top: 16px; right: 16px; background: none; border: none; color: #fff; font-size: 24px; cursor: pointer; }
+    .modal h2 { font-family: 'Bebas Neue'; font-size: 1.8rem; margin-bottom: 16px; }
+    .modal p { color: var(--text-muted); margin-bottom: 16px; }
+    
+    #stripe-element { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 12px; margin-bottom: 16px; }
+    
+    footer { background: var(--bg-darker); border-top: 1px solid rgba(255, 255, 255, 0.05); padding: 48px 0 32px; text-align: center; color: var(--text-muted); font-size: 13px; }
+    footer p { margin-bottom: 12px; }
+    .footer-brand { font-weight: 700; color: #fff; margin-bottom: 8px; }
+    
+    .admin-link { position: fixed; bottom: 20px; right: 20px; background: var(--green); color: #fff; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; z-index: 50; transition: all 0.3s; }
+    .admin-link:hover { background: var(--green-light); transform: scale(1.1); }
+  </style>
+</head>
+<body>
+
+<nav id="navbar">
+  <div class="container">
+    <div class="nav-logo">
+      <span>📐</span>
+      MODELAGEM <span>&nbsp;& DIVERSOS</span>
+    </div>
+  </div>
+</nav>
+
+<section id="header">
+  <div class="container">
+    <div class="hero-content">
+      <h1>Conversor de Moldes PDF para <span>Impressão em A4</span></h1>
+      <p>Converta seus moldes, riscos CAD e arquivos Audaces em folhas A4 para impressão em modo poster. Perfeito para modelagem, plotagem e digitalização profissional.Acesse https://falldanila-arch.github.io/convertermoldea4/</p>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>
